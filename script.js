@@ -66,64 +66,113 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Intersection Observer for animations
+// Intersection Observer for animations - Enhanced for production
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
 };
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
-    });
-}, observerOptions);
+// Fallback for browsers that don't support IntersectionObserver
+let observer;
+if ('IntersectionObserver' in window) {
+    observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                // Unobserve after animation to improve performance
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+} else {
+    // Fallback: immediately show all animations
+    observer = {
+        observe: (element) => {
+            element.classList.add('visible');
+        },
+        unobserve: () => { }
+    };
+}
 
-// Add animation classes to elements
-document.addEventListener('DOMContentLoaded', () => {
-    // Fade in animations
-    const fadeElements = document.querySelectorAll('.skill-category, .project-card, .timeline-item, .about-card');
-    fadeElements.forEach((el, index) => {
-        el.classList.add('fade-in');
-        el.style.transitionDelay = `${index * 0.1}s`;
-        observer.observe(el);
-    });
+// Add animation classes to elements - Enhanced for production
+function initializeAnimations() {
+    // Wait for all content to be ready
+    setTimeout(() => {
+        // Fade in animations
+        const fadeElements = document.querySelectorAll('.skill-category, .project-card, .timeline-item, .about-card');
+        fadeElements.forEach((el, index) => {
+            if (el) {
+                el.classList.add('fade-in');
+                el.style.transitionDelay = `${index * 0.1}s`;
+                observer.observe(el);
+            }
+        });
 
-    // Slide in animations
-    const slideLeftElements = document.querySelectorAll('.about-text, .contact-info');
-    slideLeftElements.forEach(el => {
-        el.classList.add('slide-in-left');
-        observer.observe(el);
-    });
+        // Slide in animations
+        const slideLeftElements = document.querySelectorAll('.about-text, .contact-info');
+        slideLeftElements.forEach(el => {
+            if (el) {
+                el.classList.add('slide-in-left');
+                observer.observe(el);
+            }
+        });
 
-    const slideRightElements = document.querySelectorAll('.about-image, .contact-form');
-    slideRightElements.forEach(el => {
-        el.classList.add('slide-in-right');
-        observer.observe(el);
-    });
-});
+        const slideRightElements = document.querySelectorAll('.about-image, .contact-form');
+        slideRightElements.forEach(el => {
+            if (el) {
+                el.classList.add('slide-in-right');
+                observer.observe(el);
+            }
+        });
+    }, 100);
+}
 
-// Skill bar animation
-const skillBars = document.querySelectorAll('.skill-progress');
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const progress = entry.target;
-            const width = progress.getAttribute('data-width');
-            setTimeout(() => {
-                progress.style.width = width + '%';
-            }, 500);
-        }
-    });
-}, { threshold: 0.5 });
+// Initialize animations when DOM is ready and when page is fully loaded
+document.addEventListener('DOMContentLoaded', initializeAnimations);
+window.addEventListener('load', initializeAnimations);
 
-skillBars.forEach(bar => {
-    skillObserver.observe(bar);
-});
+// Skill bar animation - Enhanced for production
+function initializeSkillBars() {
+    const skillBars = document.querySelectorAll('.skill-progress');
+
+    if ('IntersectionObserver' in window) {
+        const skillObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progress = entry.target;
+                    const width = progress.getAttribute('data-width');
+                    setTimeout(() => {
+                        progress.style.width = width + '%';
+                    }, 500);
+                    skillObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        skillBars.forEach(bar => {
+            if (bar) {
+                skillObserver.observe(bar);
+            }
+        });
+    } else {
+        // Fallback: animate all skill bars immediately
+        skillBars.forEach(bar => {
+            if (bar) {
+                const width = bar.getAttribute('data-width');
+                setTimeout(() => {
+                    bar.style.width = width + '%';
+                }, 500);
+            }
+        });
+    }
+}
+
+// Initialize skill bars
+document.addEventListener('DOMContentLoaded', initializeSkillBars);
+window.addEventListener('load', initializeSkillBars);
 
 // Initialize EmailJS
-(function() {
+(function () {
     emailjs.init("WwQMUQi92wqG-nrte"); // You'll need to replace this with your actual EmailJS public key
 })();
 
@@ -135,15 +184,15 @@ const btnLoading = document.querySelector('.btn-loading');
 const formMessage = document.querySelector('#formMessage');
 
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    contactForm.addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         // Show loading state
         submitBtn.disabled = true;
         btnText.style.display = 'none';
         btnLoading.style.display = 'inline-block';
         formMessage.style.display = 'none';
-        
+
         // Get form data
         const formData = new FormData(this);
         const templateParams = {
@@ -152,40 +201,40 @@ if (contactForm) {
             title: formData.get('subject'),
             message: formData.get('message')
         };
-        
+
         // Log the data being sent (for debugging)
         console.log('Sending email with data:', templateParams);
-        
+
         // Send email using EmailJS
         emailjs.send('service_e70gwuu', 'template_cia8kbu', templateParams)
-            .then(function(response) {
+            .then(function (response) {
                 console.log('SUCCESS!', response.status, response.text);
                 console.log('Email sent successfully to: him39vema@gmail.com');
                 console.log('Response details:', response);
-                
+
                 // Show success message
                 formMessage.innerHTML = '<div class="success-message"><i class="fas fa-check-circle"></i> Message sent successfully! I\'ll get back to you soon.</div>';
                 formMessage.className = 'form-message success';
                 formMessage.style.display = 'block';
-                
+
                 // Reset form
                 contactForm.reset();
-                
+
                 // Hide success message after 5 seconds
                 setTimeout(() => {
                     formMessage.style.display = 'none';
                 }, 5000);
-            }, function(error) {
+            }, function (error) {
                 console.log('FAILED...', error);
                 console.log('Error details:', error);
                 console.log('Error text:', error.text);
-                
+
                 // Show error message
                 formMessage.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Failed to send message. Error: ' + error.text + '. Please try again or contact me directly at himanshuve.0309@gmail.com</div>';
                 formMessage.className = 'form-message error';
                 formMessage.style.display = 'block';
             })
-            .finally(function() {
+            .finally(function () {
                 // Reset button state
                 submitBtn.disabled = false;
                 btnText.style.display = 'inline-block';
@@ -198,7 +247,7 @@ if (contactForm) {
 function typeWriter(element, text, speed = 100) {
     let i = 0;
     element.innerHTML = '';
-    
+
     function type() {
         if (i < text.length) {
             element.innerHTML += text.charAt(i);
@@ -230,11 +279,11 @@ window.addEventListener('scroll', () => {
 
 // Add hover effects to project cards
 document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
+    card.addEventListener('mouseenter', function () {
         this.style.transform = 'translateY(-8px) scale(1.02)';
     });
-    
-    card.addEventListener('mouseleave', function() {
+
+    card.addEventListener('mouseleave', function () {
         this.style.transform = 'translateY(0) scale(1)';
     });
 });
@@ -248,7 +297,7 @@ const statsObserver = new IntersectionObserver((entries) => {
             const finalValue = parseInt(stat.textContent);
             let currentValue = 0;
             const increment = finalValue / 50;
-            
+
             const updateStat = () => {
                 if (currentValue < finalValue) {
                     currentValue += increment;
@@ -258,7 +307,7 @@ const statsObserver = new IntersectionObserver((entries) => {
                     stat.textContent = finalValue + '+';
                 }
             };
-            
+
             updateStat();
         }
     });
@@ -335,13 +384,13 @@ document.addEventListener('mouseleave', () => {
 
 // Add click ripple effect to buttons
 document.querySelectorAll('.btn, .social-link, .project-link').forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.addEventListener('click', function (e) {
         const ripple = document.createElement('span');
         const rect = this.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
         const x = e.clientX - rect.left - size / 2;
         const y = e.clientY - rect.top - size / 2;
-        
+
         ripple.style.cssText = `
             position: absolute;
             width: ${size}px;
@@ -354,11 +403,11 @@ document.querySelectorAll('.btn, .social-link, .project-link').forEach(button =>
             animation: ripple 0.6s linear;
             pointer-events: none;
         `;
-        
+
         this.style.position = 'relative';
         this.style.overflow = 'hidden';
         this.appendChild(ripple);
-        
+
         setTimeout(() => {
             ripple.remove();
         }, 600);

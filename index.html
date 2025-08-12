@@ -416,5 +416,38 @@
     </footer>
 
     <script src="script.js"></script>
+    
+    <!-- Production Animation Fallback -->
+    <script>
+        // Ensure animations work even if main script fails
+        (function() {
+            function forceAnimations() {
+                const elements = document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right');
+                elements.forEach(el => {
+                    if (!el.classList.contains('visible')) {
+                        el.classList.add('visible');
+                    }
+                });
+                
+                const skillBars = document.querySelectorAll('.skill-progress');
+                skillBars.forEach(bar => {
+                    const width = bar.getAttribute('data-width');
+                    if (width && bar.style.width === '') {
+                        bar.style.width = width + '%';
+                    }
+                });
+            }
+            
+            // Force animations after 3 seconds if they haven't triggered
+            setTimeout(forceAnimations, 3000);
+            
+            // Also force on scroll if user scrolls quickly
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(forceAnimations, 1000);
+            });
+        })();
+    </script>
 </body>
 </html>

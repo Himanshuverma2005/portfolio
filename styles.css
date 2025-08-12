@@ -927,11 +927,12 @@ section {
     }
 }
 
-/* Animation classes */
+/* Animation classes - Enhanced for production */
 .fade-in {
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
 }
 
 .fade-in.visible {
@@ -942,7 +943,8 @@ section {
 .slide-in-left {
     opacity: 0;
     transform: translateX(-50px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
 }
 
 .slide-in-left.visible {
@@ -953,12 +955,66 @@ section {
 .slide-in-right {
     opacity: 0;
     transform: translateX(50px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
 }
 
 .slide-in-right.visible {
     opacity: 1;
     transform: translateX(0);
+}
+
+/* Fallback animations for browsers without JS */
+@media (prefers-reduced-motion: no-preference) {
+    .fade-in:not(.visible) {
+        animation: fadeInFallback 1s ease-out forwards;
+        animation-delay: 0.5s;
+    }
+}
+
+@keyframes fadeInFallback {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Production fixes for common deployment issues */
+.skill-progress {
+    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: width;
+}
+
+/* Ensure animations work on mobile devices */
+@media (max-width: 768px) {
+    .fade-in, .slide-in-left, .slide-in-right {
+        transition-duration: 0.6s;
+    }
+}
+
+/* Preload critical animations */
+.hero-title, .hero-subtitle, .hero-description {
+    animation: slideInFromTop 1s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure scroll indicator always animates */
+.scroll-indicator::before {
+    animation: scroll 2s infinite !important;
 }
 
 /* Form Message Styles */

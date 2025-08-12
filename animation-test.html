@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-box {
+            width: 200px;
+            height: 100px;
+            background: linear-gradient(135deg, #1e40af, #0d9488);
+            margin: 20px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .fade-test {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        .fade-test.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .skill-test {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .skill-progress-test {
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af, #0d9488);
+            width: 0;
+            transition: width 1.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>Animation Test Page</h1>
+    <p>This page tests if animations work in your deployment environment.</p>
+    
+    <div class="test-box fade-test">Fade In Animation</div>
+    
+    <h3>Skill Bar Test:</h3>
+    <div class="skill-test">
+        <div class="skill-progress-test" data-width="85"></div>
+    </div>
+    
+    <button onclick="testAnimations()">Test Animations</button>
+    <button onclick="resetAnimations()">Reset</button>
+    
+    <div id="status"></div>
+    
+    <script>
+        function testAnimations() {
+            const fadeBox = document.querySelector('.fade-test');
+            const skillBar = document.querySelector('.skill-progress-test');
+            const status = document.getElementById('status');
+            
+            // Test fade animation
+            fadeBox.classList.add('visible');
+            
+            // Test skill bar
+            const width = skillBar.getAttribute('data-width');
+            skillBar.style.width = width + '%';
+            
+            status.innerHTML = '<p style="color: green;">✓ Animations triggered successfully!</p>';
+        }
+        
+        function resetAnimations() {
+            const fadeBox = document.querySelector('.fade-test');
+            const skillBar = document.querySelector('.skill-progress-test');
+            const status = document.getElementById('status');
+            
+            fadeBox.classList.remove('visible');
+            skillBar.style.width = '0';
+            status.innerHTML = '<p style="color: blue;">Animations reset.</p>';
+        }
+        
+        // Auto-test after 2 seconds
+        setTimeout(testAnimations, 2000);
+    </script>
+</body>
+</html>
